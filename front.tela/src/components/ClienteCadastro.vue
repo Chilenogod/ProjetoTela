@@ -25,7 +25,7 @@
               <v-text-field hide-details outlined dense v-model="cliente.documento" label="CPF"/>
             </v-flex>
             <v-flex xs12 sm12 md6>
-              <v-text-field hide-details outlined dense v-maska="'##/##/####'" v-model="cliente.nascimento" label="Nascimento"/>
+              <InputDate v-model="cliente.nascimento" label="Nascimento"/>
             </v-flex>
           </v-layout>
           <v-layout wrap>
@@ -53,7 +53,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer/>
-        <v-btn @click="salvacliente" color="primary" >Salvar</v-btn>
+        <v-btn @click="salvaCliente" color="primary" >Salvar</v-btn>
         <v-btn @click="reset" color="secondary">Fechar</v-btn>
       </v-card-actions>
     </v-card>
@@ -64,9 +64,11 @@
 
 import { baseUrl } from '@/global'
 import axios from 'axios'
+import InputDate from '@/components/InputDate'
 
 export default {
   name: 'ch-clienteCadastro',
+  components: { InputDate },
   props: [ 'value', 'mode' ],
   data() {
     return {
@@ -196,7 +198,6 @@ export default {
         else this.title = 'Cadastro de Cliente'
       }
       this.dialog = this.mode
-      this.cliente.nascimento = this.$options.filters.formatDate(this.value.nascimento);
     },
   },
   methods: {
@@ -206,7 +207,7 @@ export default {
       this.title = ''
       this.$emit('fechaDialogo', null)
     },
-    salvacliente() {
+    salvaCliente() {
       const metod = this.cliente.id ? 'put' : 'post';
       axios[metod](`${ baseUrl }/cliente`, this.cliente)
       .then(res => {

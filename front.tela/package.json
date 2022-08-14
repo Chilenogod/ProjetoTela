@@ -9,9 +9,12 @@
   },
   "dependencies": {
     "core-js": "^3.8.3",
+    "date-fns": "^2.29.1",
+    "jose": "^4.8.3",
     "maska": "^1.5.0",
     "vue": "^2.6.14",
     "vue-router": "^3.5.1",
+    "vue-the-mask": "^0.11.1",
     "vue-toasted": "^1.1.28",
     "vuetify": "^2.6.0",
     "vuex": "^3.6.2"
@@ -24,7 +27,7 @@
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-plugin-vuex": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
-    "axios": "^0.18.0",
+    "axios": "^0.27.2",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",

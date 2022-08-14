@@ -1,22 +1,40 @@
 <template>
-  <v-card color="green">
-    <v-card-title>Total Vendido <v-spacer/><v-icon>mdi-cash-check</v-icon></v-card-title>
-    <v-card-text>
-      <v-container grid-list-md>
-        <v-layout wrap>
-          <v-flex xs12 sm12 md12>
-            <v-list-item three-line>
-              <v-list-item-content>
-                <v-list-item-title class="text-h3 mb-1" >
+<v-container grid-list-md>
+  <v-layout wrap>
+    <v-flex xs12 sm12 md4>
+      <v-card color="primary">
+        <v-card-title>Total Vendido <v-spacer/><v-icon>mdi-cash-check</v-icon></v-card-title>
+        <v-card-text>
+          <v-container grid-list-md>
+            <v-layout wrap>
+              <v-flex xs12 sm12 md12>
+                <p class="text-h3 mb-1" >
                   R$ {{ parseFloat( totalVendas.total_vendas ).toLocaleString('pt-br', {minimumFractionDigits:2}) }}
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-flex>
-        </v-layout>
-      </v-container>
-    </v-card-text>
-  </v-card>
+                </p>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+    <v-flex xs12 sm12 md3>
+      <v-card color="primary">
+        <v-card-title>Total de Pedidos <v-spacer/><v-icon>mdi-cash-check</v-icon></v-card-title>
+        <v-card-text>
+          <v-container grid-list-md>
+            <v-layout wrap>
+              <v-flex xs12 sm12 md12>
+                <p class="text-h3 mb-1" >
+                  {{ parseFloat( totalVendasPedidos.total_pedidos ) }}
+                </p>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
 </template>
 
 <script>
@@ -29,6 +47,9 @@ export default {
       totalVendas: {
         total_vendas: '',
       },
+      totalVendasPedidos: {
+        total_pedidos: '',
+      },
     }
   },
   methods: {
@@ -39,10 +60,20 @@ export default {
         console.log(res.data)
       })
       .catch(erro => console.log(erro))
+    },
+
+    carregaTotalVendasPedidos() {
+      axios.post(`${ baseUrl }/totalVendas/pedidos`)
+      .then(res => {
+        this.totalVendasPedidos = res.data[0];
+        console.log(res.data)
+      })
+      .catch(erro => console.log(erro))
     }
   },
   mounted() {
     this.carregaTotalVendas();
+    this.carregaTotalVendasPedidos();
   }
 }
 </script>

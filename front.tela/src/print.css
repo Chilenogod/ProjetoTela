@@ -1,0 +1,24 @@
+.on-print {
+  display:none;
+}
+
+@media print {
+  @page{
+    size: landscape; 
+
+  }
+
+  .v-btn { 
+    display: none; 
+  }
+
+  .v-icon { display: none; }
+  #no-print { display: none; }
+
+  .no-print { display: none; }
+
+  .on-print { display:inline-block}
+
+  body { background: #fff; }
+};
+

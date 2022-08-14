@@ -4,6 +4,7 @@ let tabela = 'produtos'
 function estoqueMostra(req, res) {
   let sql = `SELECT * FROM estoque_view WHERE 1=1`
     if(req.body.search) sql += ` AND UPPER(produto) like '%${req.body.search.toUpperCase()}%'`
+    if(req.query.search) sql += ` AND UPPER(produto) like '%${req.query.search.toUpperCase()}%'`
     console.log(sql)
   pg.pool.query(sql, [], (erro, produtos) => {
     if(erro) {

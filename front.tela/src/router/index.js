@@ -7,6 +7,7 @@ import Estoque from '@/views/estoque';
 import Dashboard from '@/views/dashboard';
 import Clientes from '@/views/clientes';
 import Vendas from '@/views/vendas';
+import VendasPorFunc from '@/views/vendasPorFunc';
 
 Vue.use(VueRouter);
 
@@ -35,17 +36,12 @@ const routes = [
     path: "/dashboard",
     name: "dashboard",
     component: Dashboard,
-    meta: {
-      requeresAuth: true
-    }
   },
   {
     path: "/funcionarios",
     name: "funcionarios",
     component: Funcionarios,
-    meta: {
-      requeresAuth: true
-    }
+   
   },
   {
     path: "/login",
@@ -56,9 +52,11 @@ const routes = [
     path: "/vendas",
     name: "vendas",
     component: Vendas,
-    meta: {
-      requeresAuth: true
-    }
+  },
+  {
+    path: "/vendasPorFunc",
+    name: "vendasPorFunc",
+    component: VendasPorFunc,
   },
   {
     path: "/usuarios",

@@ -9,10 +9,6 @@ import Maska from 'maska';
 
 Vue.config.productionTip = false;
 
-Vue.filter('formatDate', value => {
-  let data = new Date(value)
-  return  ('00'+ data.getDate()).slice(-2) + '/' + ('00'+ (data.getMonth()+1)).slice(-2) + '/' + data.getFullYear()  
-});
 
 Vue.filter('formatDocument', value => {
   let doc = value

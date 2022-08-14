@@ -1,4 +1,5 @@
 const pg = require('./pg')
+const md5 = require('md5')
 let tabela = 'usuarios'
 
 function usuarioApaga(req, res) {
@@ -23,10 +24,9 @@ function usuarioAtualiza(req, res) {
                                     cidade = $5,
                                     estado = $6,
                                     login = $7,
-                                    senha = $8,
-                                    genero = $9,
-                                    email = $10
-                                    WHERE id = $11`
+                                    genero = $8,
+                                    email = $9
+                                    WHERE id = $10`
 
     let val = [
         req.body.nome,
@@ -36,7 +36,6 @@ function usuarioAtualiza(req, res) {
         req.body.cidade,
         req.body.estado,
         req.body.login,
-        req.body.senha,
         req.body.genero,
         req.body.email,
         req.body.id
@@ -48,6 +47,42 @@ function usuarioAtualiza(req, res) {
         }
         res.json({msg:'Usuario atualizado com sucesso!'})
     })
+}
+
+function usuarioAtualizaSenha(req, res) {
+    
+  let sql1 = `SELECT id, login, senha FROM usuarios WHERE id = ${req.body.id}`
+
+  pg.pool.query(sql1, [], (erro, usuarios) => {
+    if(erro) {
+      res.status(401).json(erro)
+      return
+    }
+   
+    const user = usuarios.rows[0]
+    console.log(user)
+    if(user.senha === md5(user.login.toUpperCase() + req.body.senhaAntiga)) {
+      if(req.body.senhaNova === req.body.senhaRepeat){
+        if(req.body.senhaNova !== req.body.senhaAntiga){
+
+        let sql = `UPDATE ${tabela} SET senha = $1 WHERE id = $2`
+
+        let val = [
+                    md5(user.login.toUpperCase() + req.body.senhaNova),
+                    req.body.id
+                  ]
+
+        pg.pool.query(sql, val, (erro, usuarios) => {
+          if(erro) {
+            res.json(erro)
+            return
+          }
+          res.status(200).json({msg:'Senha atualizada com sucesso!'})
+        })
+        }else res.status(401).json({msg: 'A senha nova deve ser diferente da antiga'})
+      } else res.status(401).json({msg: 'As novas senhas devem ser escritas iguais!'})
+    } else res.status(401).json({msg: 'Senha antiga incorreta!'})
+  })  
 }
 
 function usuarioMostra(req, res) {
@@ -92,7 +127,7 @@ function usuarioSalva(req, res) {
         req.body.cidade,
         req.body.estado,
         req.body.login,
-        req.body.senha,
+        md5(req.body.login.toUpperCase() + req.body.senha),
         req.body.genero,
         req.body.email
     ]
@@ -115,6 +150,7 @@ function usuarioSalva(req, res) {
 module.exports = {
     usuarioApaga,
     usuarioAtualiza,
+    usuarioAtualizaSenha,
     usuarioMostra,
     usuarioSalva
 }

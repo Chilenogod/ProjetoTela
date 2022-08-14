@@ -4,7 +4,11 @@ const totalVendas = require('../api/totalVendas')
 
 
 router.post('/', (req, res) => {
-  totalVendas.totalVendasMostra(req, res)
+  totalVendas.totalVendasShow(req, res)
+});
+
+router.post('/pedidos', (req, res) => {
+  totalVendas.totalVendasPedidosShow(req, res)
 });
 
 

@@ -6,10 +6,10 @@
       <v-btn @click="atualizaCliente({})" color="success" dark fab small title="Novo Cliente"><v-icon>mdi-account-plus</v-icon></v-btn>
       <v-btn @click="imprimir" color="info" dark fab small title="Imprimir"><v-icon>mdi-printer</v-icon></v-btn>
     </v-toolbar>
-    <v-data-table :headers="headers" :items="clientes" :items-per-page="5" dense @click:row="atualizaCliente">
+    <v-data-table :headers="headers" :items="clientes" hide-default-footer disable-pagination dense @click:row="atualizaCliente">
       <template v-slot:[`item.cidade`]="{ item }">{{item.cidade}}/{{item.estado}}</template>
       <template v-slot:[`item.nome`]="{ item }">{{item.nome}} {{item.sobrenome}}</template>
-      <template v-slot:[`item.nascimento`]="{ item }">{{ item.nascimento | formatDate }}</template>
+      <template v-slot:[`item.nascimento`]="{ item }">{{  formatDate(item.nascimento) }}</template>
       <template v-slot:[`item.documento`]="{ item }">{{ item.documento | formatDocument }}</template>
       <template v-slot:[`item.telefone`]="{ item }">{{ item.telefone | formatTel }}</template>
       <template v-slot:[`item.action`]="{ item }">
@@ -21,7 +21,7 @@
   </div>
 </template>
 <script>
-import { baseUrl } from '@/global'
+import { baseUrl , formatDate } from '@/global'
 import axios from 'axios'
 import ClienteCadastro from '@/components/ClienteCadastro'
 
@@ -111,6 +111,9 @@ export default {
       .then(res => this.clientes = res.data)
       //.catch(function(e) { console.log(e)})
       .catch(erro => console.log(erro))
+    },
+    formatDate(date) {
+      return formatDate(date)
     },
     imprimir() {
       window.print();

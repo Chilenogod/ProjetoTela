@@ -2,11 +2,16 @@ var express = require('express');
 var router = express.Router();
 const cliente = require('../api/cliente')
 
-router.post('/', (req, res) => {
-  cliente.clienteSalva(req, res)
-})
 
 router.post('/search', (req, res) => {
+  cliente.clienteMostra(req, res)
+});
+
+router.post('/', (req, res) => {
+  cliente.clienteSalva(req, res)
+});
+
+router.get('/search', (req, res) => {
   cliente.clienteMostra(req, res)
 });
 

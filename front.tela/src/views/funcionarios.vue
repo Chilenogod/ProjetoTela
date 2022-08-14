@@ -3,25 +3,27 @@
     <v-toolbar flat >
       <v-toolbar-title>Funcionários</v-toolbar-title>
       <v-spacer/>
-      <v-text-field v-model="search" append-icon="mdi-magnify" label="Procurar" single-line hide-details></v-text-field> 
-      <v-btn fab small flat @click="atualizaFuncionario({})" dark color="success" title="Novo funcionário"><v-icon>mdi-account-plus</v-icon></v-btn>
+      <v-text-field v-model="search" append-icon="mdi-magnify" label="Procurar" hide-details/>
+      <v-btn fab small  @click="atualizaFuncionario({})" dark color="success" title="Novo funcionário"><v-icon>mdi-account-plus</v-icon></v-btn>
+      <v-btn @click="imprimir" color="info" dark fab small title="Imprimir"><v-icon>mdi-printer</v-icon></v-btn>
     </v-toolbar>
-    <v-data-table :headers="headers" :items="funcionarios" :search="search" :items-per-page="5" dense @click:row="atualizaFuncionario">
+    <v-data-table :headers="headers" :items="funcionarios" :search="search" dense hide-default-footer disable-pagination @click:row="atualizaFuncionario">
       <template v-slot:[`item.nome`]="{ item }">{{ item.nome }} {{ item.sobrenome }}</template>
       <template v-slot:[`item.genero`]="{ item }">{{ item.genero == 'M' ? 'Masculino' : 'Feminino' }}</template>
       <template v-slot:[`item.salario`]="{ item }">R${{ parseFloat( item.salario || 0).toLocaleString('pt-br', {minimumFractionDigits:2}) }}</template>
       <template v-slot:[`item.action`]="{ item }">
-        <v-icon small class="mr-2" @click.stop="atualizaFuncionario(item)" color="primary" title="Alterar funcionário">mdi-pencil</v-icon>
-        <v-icon small class="mr-2" @click.stop="apagaFuncionario(item)" color="error" title="Excluir funcionário">mdi-delete</v-icon>
+        <v-icon small id="no-print"  @click.stop="atualizaFuncionario(item)" color="primary" title="Alterar funcionário">mdi-pencil</v-icon>
+        <v-icon small id="no-print"  @click.stop="apagaFuncionario(item)" color="error" title="Excluir funcionário">mdi-delete</v-icon>
       </template>
     </v-data-table>
-    <FuncionarioCadastro :value="funcionarioNovo" :mode="dialog" @fecharDialogo="dialog=false" @salva="alerta" @carrega="carregaFuncionario"/>  
+    <FuncionarioCadastro :value="funcionarioNovo" :mode="dialog" @fecharDialogo="dialog=false" @carrega="carregaFuncionario"/>  
   </div>
 </template>
 <script>
 import FuncionarioCadastro from '@/components/FuncionarioCadastro'
 import { baseUrl } from '@/global'
 import axios from 'axios'
+
 
 export default {
   name: "ch-funcionarios",
@@ -80,8 +82,9 @@ export default {
         {
           text: 'Ação',
           value: 'action',
+          width: 70,
           sortable: false,
-          class: [ 'blue lighten-5' ]
+          class: [ 'no-print', 'blue lighten-5' ]
         }
       ],
       search: '',
@@ -96,7 +99,7 @@ export default {
         this.$toasted.global.defaultSuccess({msg: res.data.msg})
         this.carregaFuncionario()
       })
-      .catch(erro => this.$toasted.global.defaultError({msg: erro}))  
+      .catch(erro => console.log(erro))  
     },
     atualizaFuncionario(item) {
       this.funcionarioNovo = { ...item };
@@ -108,8 +111,8 @@ export default {
       .then(res => this.funcionarios = res.data)
       .catch(erro => console.log(erro))
     },
-    fechaAlerta() {
-      this.alertar = false
+    imprimir() {
+      window.print()
     }
 
   },
@@ -119,5 +122,9 @@ export default {
 }
 </script>
 <style>
-   
+@media print {
+  .v-text-field {
+    display: none;
+  }
+}
 </style>

@@ -1,3 +1,4 @@
+
 import Vue from 'vue';
 import Toasted from 'vue-toasted';
 
@@ -5,8 +6,10 @@ import Toasted from 'vue-toasted';
 Vue.use(Toasted, {
   iconPack: 'mdi',
   theme: 'bubble',
-  duration: 3000
+  duration: 3000,
 });
+
+
 
 Vue.toasted.register(
   'defaultSuccess',

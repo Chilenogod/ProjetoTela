@@ -20,6 +20,10 @@ router.put('/', function(req, res) {
   usuario.usuarioAtualiza(req, res)
 });
 
+router.put('/senha', function(req, res) {
+  usuario.usuarioAtualizaSenha(req, res)
+});
+
 router.delete('/', function(req, res) {
   usuario.usuarioApaga(req, res)
 });

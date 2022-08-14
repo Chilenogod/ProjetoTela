@@ -1,8 +1,10 @@
 const pg = require('./pg')
+const md5 = require('md5')
+
 let tabela = 'usuarios'
 
 function usuarioLogin(req, res) {
-  let sql = `SELECT * FROM ${tabela} WHERE login = '${req.body.login}'`
+  let sql = `SELECT * FROM ${tabela} WHERE senha = '${md5(req.body.login.toUpperCase()+req.body.senha)}'`
   console.log(sql)
 
   pg.pool.query(sql, [], (erro, usuario) =>{

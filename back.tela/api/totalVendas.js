@@ -1,8 +1,8 @@
 const pg = require('./pg')
-let tabela = 'ordem_saida'
+let tabela = 'vendas_items'
 
-function totalVendasMostra(req, res) {
-  let sql = `SELECT SUM(qtd_saida*valor) AS total_vendas FROM ${tabela}`
+function totalVendasShow(req, res) {
+  let sql = `SELECT SUM(quantidade*preco) AS total_vendas FROM ${tabela}`
   console.log(sql)
   pg.pool.query(sql, [], (erro, totalVendas) => {
     if(erro) {
@@ -13,6 +13,19 @@ function totalVendasMostra(req, res) {
   })
 }
 
+function totalVendasPedidosShow(req, res) {
+  let sql = `SELECT COUNT(*) AS total_pedidos FROM ${tabela}`
+  console.log(sql)
+  pg.pool.query(sql, [], (erro, totalPedidos) => {
+    if(erro) {
+      console.log(erro)
+      return
+    }
+    res.json(totalPedidos.rows);
+  })
+}
+
 module.exports = {
-    totalVendasMostra,
+    totalVendasShow,
+    totalVendasPedidosShow
 }

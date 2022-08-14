@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" max-width="500px" persistent>
     <v-card>
-      <v-card-title>{{ title }}</v-card-title>
+      <v-card-title>{{ title }} <!--Usuario logado: {{ user.login }}--></v-card-title>
       <v-card-text>
         <v-container grid-list-md>
           <v-layout wrap>
@@ -25,7 +25,7 @@
               <v-text-field hide-details outlined dense v-model="usuario.cpf" label="CPF"/>
             </v-flex>
             <v-flex xs12 sm12 md6>
-              <v-text-field hide-details outlined dense v-maska="'##/##/####'" v-model="usuario.nascimento" label="Nascimento"/>
+              <InputDate v-model="usuario.nascimento" label="Nascimento"/>
             </v-flex>
           </v-layout>
           <v-layout wrap>
@@ -37,11 +37,12 @@
             </v-flex>
           </v-layout>
           <v-layout wrap>
-            <v-flex xs12 sm12 md8>
+            <v-flex xs12 sm12 md7>
               <v-text-field hide-details outlined dense v-model="usuario.login" label="Login"/>
             </v-flex>
-            <v-flex xs12 sm12 md4>
-              <v-text-field hide-details outlined dense v-model="usuario.senha" label="Senha"/>
+            <v-flex xs12 sm12 md5>
+              <v-text-field hide-details outlined dense type="password" v-model="usuario.senha" label="Senha" v-if="!usuario.id"/>
+              <v-btn @click="atualizaSenha" v-if="usuario.id">Alterar Senha</v-btn>
             </v-flex>
           </v-layout>
           <v-layout wrap>
@@ -60,21 +61,28 @@
         <v-btn @click="reset" color="secondary">Fechar</v-btn>
       </v-card-actions>
     </v-card>
+    <UsuarioAlterSenha :value="senhaNova" :mode="dialogAlter" @fechaDialogo="dialogAlter=false"/>
   </v-dialog>
 </template>
 
 <script>
 
 import { baseUrl } from '@/global'
+import InputDate from  '@/components/InputDate'
+import { mapState } from 'vuex'
 import axios from 'axios'
+import UsuarioAlterSenha from './UsuarioAlterSenha'
 
 export default {
   name: 'ch-usuarioCadastro',
   props: [ 'value', 'mode' ],
+  components: { InputDate, UsuarioAlterSenha },
   data() {
     return {
       dialog: false,
+      dialogAlter: false,
       usuario: {},
+      senhaNova: {},
       estados: [
         {
           nome: 'Acre',
@@ -188,9 +196,7 @@ export default {
       title: '',
     }
   }, 
-  computed: {
-
-  },
+  computed: mapState(['user']),
   watch: {
     mode() {
       if(this.mode) {
@@ -199,7 +205,7 @@ export default {
         else this.title = 'Cadastro de Usuário'
       }
       this.dialog = this.mode
-      this.usuario.nascimento = this.$options.filters.formatDate(this.value.nascimento);
+      //this.usuario.nascimento = this.$options.filters.formatDate(this.value.nascimento);
     },
   },
   methods: {
@@ -208,6 +214,11 @@ export default {
       this.dialog = false
       this.title = ''
       this.$emit('fechaDialogo', null)
+    },
+    atualizaSenha() {
+      this.senhaNova = { ...this.usuario }
+      console.log(this.senhaNova)
+      this.dialogAlter = true
     },
     salvaUsuario() {
       const metod = this.usuario.id ? 'put' : 'post';
