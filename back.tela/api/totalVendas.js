@@ -1,8 +1,8 @@
 const pg = require('./pg')
-let tabela = 'vendas_items'
+let tabela = 'vendas'
 
 function totalVendasShow(req, res) {
-  let sql = `SELECT SUM(quantidade*preco) AS total_vendas FROM ${tabela}`
+  let sql = `SELECT SUM(total) AS total_vendas FROM ${tabela}`
   console.log(sql)
   pg.pool.query(sql, [], (erro, totalVendas) => {
     if(erro) {

@@ -10,6 +10,14 @@ router.post('/search', (req, res) => {
   venda.vendaMostra(req, res)
 });
 
+router.get('/clientes', (req, res) => {
+  venda.vendaClienteMostra(req, res)
+});
+
+router.get('/items', (req, res) => {
+  venda.vendaItemsMostra(req, res)
+});
+
 router.put('/', (req, res) => {
   venda.vendaAtualiza(req, res)
 });

@@ -6,7 +6,7 @@
         <v-container grid-list-md>
           <v-layout wrap>
             <v-flex xs12 sm12 md2>
-              <v-text-field hide-details outlined dense v-model="venda.id" filled readonly label="Cod."/>
+              <v-text-field hide-details outlined dense v-model="venda.venda_id" filled readonly label="Cod."/>
             </v-flex>
             <v-flex xs12 sm12 md3>
               <v-text-field hide-details outlined dense v-model="venda.emissao" label="Data"/>
@@ -18,7 +18,7 @@
           <v-toolbar flat dense>
             <v-toolbar-title>Dados do Cliente</v-toolbar-title>
             <v-spacer/>
-            <v-autocomplete v-model="modelCliente" :items="itemsCliente" :search-input.sync="searchCliente" item-text="nome" item-value="id" outlined dense return-object></v-autocomplete>
+            <v-autocomplete v-model="modelCliente" :items="itemsCliente" :search-input.sync="searchCliente" item-text="ds_cliente" item-value="id" outlined dense return-object></v-autocomplete>
           </v-toolbar>
           <!--Dados do Cliente-->
           <v-expand-transition v-if="modelCliente">
@@ -69,7 +69,7 @@
           <v-toolbar flat dense >
             <v-toolbar-title>Produto</v-toolbar-title>
             <v-spacer/>
-            <v-autocomplete v-model="modelProd" :items="itemsProd" :search-input.sync="searchProd" item-text="produto" item-value="id" outlined dense return-object></v-autocomplete>
+            <v-autocomplete v-model="modelProd" :items="itemsProd" :search-input.sync="searchProd" item-text="produto" item-value="id" outlined dense no-data-text="Digite para consultar" return-object></v-autocomplete>
           </v-toolbar>
           <!--Dados do Produto-->
           <v-expand-transition v-if="modelProd">
@@ -102,18 +102,22 @@
               <v-card-actions>
                 <v-spacer/>
                 <v-btn :disabled="!modelProd" @click="adicionaProd">Adicionar</v-btn>
-                <v-btn :disabled="!modelProd" @click="modelProd = null">Limpar</v-btn>
+                <v-btn :disabled="!modelProd" @click="limpaProd">Limpar</v-btn>
               </v-card-actions>
             </v-card>
           </v-expand-transition>
           <v-data-table :headers="headersProd" :items="itemsVenda" hide-default-footer disable-pagination dense>
-            <template v-slot:[`item.subtotal`]="{ item }">{{item.qtd * item.valor}}</template> 
+            <template v-slot:[`item.valor`]="{ item }">R$ {{ parseFloat(item.valor).toLocaleString('pt-br', {minimumFractionDigits:2} )}}</template>
+            <template v-slot:[`item.subtotal`]="{ item }"> R$ {{ parseFloat(item.qtd * item.valor).toLocaleString('pt-br', {minimumFractionDigits:2})}}</template> 
+            <template v-slot:[`item.action`]="{ item }">
+              <v-icon small id="no-print" class="mr-2 no-print" @click.stop="apagaProd(item)" color="error" title="Excluir Usuário">mdi-delete</v-icon>
+            </template>
           </v-data-table>
-          <v-footer class="text-right" color="primary lighten-3">
+          <v-footer v-if="ifTotal" class="text-right" color="primary lighten-3">
             <v-layout>
               <v-spacer/>
               <v-flex>
-                <p>Total: R$ {{ parseFloat(vendas).toLocaleString('pt-br', {minimumFractionDigits:2}) }}</p>
+                <p>Total: R$ {{ parseFloat(venda.total).toLocaleString('pt-br', {minimumFractionDigits:2}) }}</p>
               </v-flex>
             </v-layout>
           </v-footer>
@@ -125,7 +129,7 @@
         <v-btn @click="reset" color="secondery">Fechar</v-btn>
       </v-card-actions>
     </v-card>
-    <ClienteCadastro :value="usuarioAlter" :mode="dialogUser" @fechaDialogo="dialogUser=false" />
+    <ClienteCadastro :value="clienteAlter" :mode="dialogUser" @fechaDialogo="dialogUser=false" />
   </v-dialog>
 </template>
 
@@ -140,13 +144,15 @@ export default {
   props: [ 'value', 'mode' ],
   data() {
     return {
+      clienteAlter: {},
       dialog: false,
       dialogUser: false,
-      searchCliente: null,
-      searchProd: null,
+      searchCliente: '',
+      searchProd: '',
       itemsCliente: [],
       itemsProd: [],
       itemsVenda: [],
+      ifTotal: false,
       headersProd:[
         {
 				text:  'Cod.Produto',
@@ -187,9 +193,17 @@ export default {
 
 				class: ['blue lighten-5'],
         },
+        {
+        text: 'Ação',
+        value: 'action',
+        sortable: false,
+        width: 100 ,
+        class: ['blue lighten-5', 'no-print'],
+      }
       ],
       venda: {},
       titulo: '',
+      total: '',
       modelProd: null,
       modelCliente: null,
     }
@@ -199,20 +213,27 @@ export default {
     mode() {
       if(this.mode) {
         this.venda = { ...this.value }
+        this.searchCliente = this.value.cliente
+        this.venda.total = this.value.venda_total
+        this.itemsVenda = this.value && this.value.items ? [ ...this.value.items ] : []
         if(this.venda.ordem_id) this.titulo = 'Alteração de Pedido'
         else this.titulo = 'Nova Pedido'
       }
       this.dialog = this.mode 
     },
+    itemsVenda() {
+      if(this.itemsVenda.length > 0) this.ifTotal = true
+      else this.ifTotal = false
+    },
     searchCliente() {
-      if(this.itemsCliente.length > 0) return
+      //if(this.searchCliente.length == 0) return
 
       axios(`${baseUrl}/cliente/search?search=${this.searchCliente}`)
       .then(res => this.itemsCliente = res.data)
       .catch(erro => console.log(erro)) 
     },
     searchProd() {
-      if(this.itemsProd.length > 0) return
+      //if(this.searchProd.length == 0) return
 
       axios(`${baseUrl}/estoque/?search=${this.searchProd}`)
       .then(res => this.itemsProd = res.data)
@@ -223,11 +244,18 @@ export default {
   methods: {
     adicionaProd() {
       this.itemsVenda.push(this.modelProd)
+      this.totalVenda()
       this.modelProd = null
+      this.itemsProd = []
+      this.searchProd = ''
+    },
+    apagaProd(prod) {
+      let index = this.itemsVenda.indexOf(prod)
+      this.itemsVenda.splice(index, 1)
       this.totalVenda()
     },
     atualizaCliente() {
-      this.usuarioAlter = { ...this.modelCliente };
+      this.clienteAlter = { ...this.modelCliente };
       this.dialogUser = true
     },
     reset() {
@@ -236,10 +264,17 @@ export default {
       this.itemsVenda = []
       this.modelCliente = null
       this.modelProd = null
+      this.searchCliente = ''
+      this.searchProd = ''
       this.venda = {}
       this.dialog = false
       this.titulo = ''
       this.$emit('fechaDialogo')
+    },
+    limpaProd() {
+      this.modelProd = null
+      this.itemsProd = []
+      this.searchProd = null
     },
     salvaVenda() {
       this.venda.vendedor = this.user.id 
@@ -249,18 +284,19 @@ export default {
       axios.post(`${ baseUrl }/venda/`, this.venda)
       .then(res => {
         this.$toasted.global.defaultSuccess({msg : res.data.msg})
-        //this.$emit('carrega')
-        //this.reset()
+        this.$emit('carrega')
+        this.reset()
       }) 
       .catch(erro => console.log(erro))
     },
     totalVenda() {
-     let rowCount = this.itemsVenda.length;
-     //let total = 0
-     for(let i=0; i<=rowCount; i++) {
-      //total = this.itemsVenda[i] + total
-      console.log(i)
-     }
+     /*let rowCount = this.itemsVenda.length;
+     let total = 0
+     for(let i=0; i<rowCount; i++) {
+      total = (this.itemsVenda[i].valor * this.itemsVenda[i].qtd) + total
+     }*/
+     this.venda.total = this.itemsVenda.reduce((prev, el) => prev += (el.qtd * el.valor),0)
+     //console.log(total)
     }
   },
 }

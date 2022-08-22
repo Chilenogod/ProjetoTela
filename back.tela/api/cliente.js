@@ -50,10 +50,9 @@ function clienteAtualiza(req, res) {
 }
 
 function clienteMostra(req, res) {
-  let sql = `SELECT * FROM ${tabela} WHERE 1=1`
+  let sql = `SELECT *,nome || ' ' || sobrenome as ds_cliente FROM ${tabela} WHERE 1=1`
     if(req.body.search) sql += ` AND UPPER( nome || sobrenome || documento )  LIKE '%${req.body.search.toUpperCase()}%'`
     if(req.query.search) sql += ` AND UPPER( nome || sobrenome || documento )  LIKE '%${req.query.search.toUpperCase()}%'`
-  console.log(sql)
 
   pg.pool.query(sql, [], (erro, clientes) => {
     if(erro) {

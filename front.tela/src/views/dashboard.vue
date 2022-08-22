@@ -1,13 +1,13 @@
 <template>
   <div>
-    <v-card flat class="blue lighten-4">
+    <v-card class="blue lighten-4">
       <v-card-text>
         <TotalVendas/>
       </v-card-text>
       <v-card-actions>
         <v-spacer/>
-        <v-btn fab small flat @click="novoVenda" color="success" title="Venda"><v-icon>mdi-clipboard-text</v-icon></v-btn>
-        <v-btn fab small falt @click="novoCliente" color="success" title="Cadastrar Cliente"><v-icon>mdi-account-plus</v-icon></v-btn>
+        <v-btn fab small @click="novoVenda" color="success" title="Venda"><v-icon>mdi-clipboard-text</v-icon></v-btn>
+        <v-btn fab small @click="novoCliente" color="success" title="Cadastrar Cliente"><v-icon>mdi-account-plus</v-icon></v-btn>
       </v-card-actions>
       <ClienteCadastro  :value="clienteNovo" :mode="dialogCli" @fechaDialogo="dialogCli=false" />
       <VendaCadastro :value="vendaNovo" :mode="dialogVen" @fechaDialogo="dialogVen=false" />
@@ -24,9 +24,11 @@ export default {
   name: 'ch-dashboard',
   data() {
     return {
+      clienteNovo: {},
       dialogCli: false,
       dialogVen: false,
-      titulo: 'Dahboard'
+      titulo: 'Dahboard', 
+      vendaNovo: {},
     }
   },
   methods: {

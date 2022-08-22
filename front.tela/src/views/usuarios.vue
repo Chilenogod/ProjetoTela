@@ -10,7 +10,7 @@
     <v-data-table :headers="headers" :items="usuarios" hide-default-footer disable-pagination dense @click:row="atualizaUsuario">
       <template v-slot:[`item.cidade`]="{ item }">{{item.cidade}}/{{item.estado}}</template>
       <template v-slot:[`item.nome`]="{ item }">{{item.nome}} {{item.sobrenome}}</template>
-      <template v-slot:[`item.nascimento`]="{ item }">{{ item.nascimento | formatDate }}</template>
+      <template v-slot:[`item.nascimento`]="{ item }">{{ formatDate(item.nascimento)  }}</template>
       <template v-slot:[`item.genero`]="{ item }">{{ item.genero == 'M' ? 'Masculino' : 'Feminino' }}</template>
       <template v-slot:[`item.cpf`]="{ item }">{{ item.cpf | formatDocument }}</template>
       <template v-slot:[`item.action`]="{ item }">
@@ -23,7 +23,7 @@
 </template>
 <script>
 import { mapState } from 'vuex'
-import { baseUrl, formatDateTime, getNow } from '@/global'
+import { baseUrl, formatDate, formatDateTime, getNow } from '@/global'
 import axios from 'axios'
 import UsuarioCadastro from '@/components/UsuarioCadastro'
 
@@ -114,6 +114,9 @@ export default {
       .then(res => this.usuarios = res.data)
       //.catch(function(e) { console.log(e)})
       .catch(erro => console.log(erro))
+    },
+    formatDate(value) {
+      return formatDate(value)
     },
     formatDateTime() {
       return formatDateTime(getNow())

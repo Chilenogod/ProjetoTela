@@ -7,9 +7,9 @@
       <v-btn @click="atualizaVenda({})" color="success" dark fab small title="Nova Venda"><v-icon>mdi-clipboard-text</v-icon></v-btn>
       <v-btn @click="imprimir" color="info" dark fab small title="Imprimir"><v-icon>mdi-printer</v-icon></v-btn>
     </v-toolbar>
-    <v-data-table :headers="headers" :items="vendas" :search="search" hide-default-footer disable-pagination dense  @click:row="atualizaVenda">
+    <v-data-table :headers="headers" :items="vendas" :search="search" hide-default-footer disable-pagination dense>
       <template v-slot:[`item.funcionario`]="{ item }">{{item.funcionario}} {{item.cliente_sobrenome}}</template>
-      <template v-slot:[`item.total`]="{ item }">R$ {{ parseFloat( item.total || 0).toLocaleString('pt-br', {minimumFractionDigits:2}) }}</template>
+      <template v-slot:[`item.venda_total`]="{ item }">R$ {{ parseFloat( item.venda_total || 0).toLocaleString('pt-br', {minimumFractionDigits:2}) }}</template>
       <template v-slot:[`item.action`]="{ item }">
         <v-icon small id="no-print" class="mr-2" @click.stop="atualizaVenda(item)" color="primary" title="Alterar Venda">mdi-pencil</v-icon>
         <v-icon small id="no-print" class="mr-2" @click.stop="apagaVenda(item)" color="error" title="Excluir Venda">mdi-delete</v-icon>
@@ -19,7 +19,7 @@
       <v-layout>
         <v-spacer/>
         <v-flex>
-          <p>Total: R$ {{ parseFloat(totalVendas.total_vendas).toLocaleString('pt-br', {minimumFractionDigits:2}) }}</p>
+          <p>Total: R$ {{ parseFloat(total.vendas).toLocaleString('pt-br', {minimumFractionDigits:2}) }}</p>
         </v-flex>
       </v-layout>
     </v-footer>
@@ -42,7 +42,7 @@ export default {
 			headers:[								
 			{
         text:  'Funcionario',
-				value: 'funcionario',
+				value: 'ds_usuario',
         align: 'left',
 				sortable: true,
 				class: ['blue lighten-5'],
@@ -55,19 +55,18 @@ export default {
       },
       {
 				text:  'Total',
-				value: 'total',
+				value: 'venda_total',
 				align: 'left',
 				class: ['blue lighten-5' ],
 			},
 			],
       search: '',
-      totalVendas:{ total_vendas: ''}
+      total: { vendas: '' },
     }
   },
-  
 	methods: {
     carregaVenda() {
-      axios.post(`${ baseUrl }/venda/search?group=funcionario`)
+      axios.post(`${ baseUrl }/venda/search?group=ds_usuario`)
       .then(res => this.vendas = res.data)
       //.catch(function(e) { console.log(e)})
       .catch(erro => console.log(erro))
@@ -75,18 +74,18 @@ export default {
     imprimir() {
       window.print();
     },
-    carregaTotalVendas() {
-      axios.post(`${ baseUrl }/totalVendas`)
-      .then(res => {
-        this.totalVendas = res.data[0];
-        console.log(res.data)
-      })
-      .catch(erro => console.log(erro))
-    },
+    totalVenda() {
+     let rowCount = this.vendas.length
+     let total = 0
+     for(let i=0; i<rowCount; i++) {
+      total = this.vendas[i].venda_total + total
+     }
+     this.total.vendas = total
+    }
 	},
 	mounted() {
 		this.carregaVenda()
-    this.carregaTotalVendas()
+    setTimeout(() => { this.totalVenda() }, 200)
 	},
 }
 </script>
