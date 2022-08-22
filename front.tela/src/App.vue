@@ -1,12 +1,13 @@
 <template>
   <v-app>
-    <Header v-if="this.user"  id="no-print" :value="sistemaAbas" @abriMenu="drawer =! drawer"/>
-    <MenuPrincipal v-if="this.user"  @router="set" :mode="drawer"/>
-    <v-container fluid>
-    <v-main>
+    <Header v-if="user"  id="no-print" @abriMenu="drawer =! drawer"/>
+    <MenuPrincipal v-if="user"  @router="sistemaAbas" :mode="drawer"/>
+    <v-main fluid >
+      <v-tabs v-if="user" height="22" :background-color="'blue-grey darken-3'" >
+        <v-tab v-for="item in items" :key="item.title" :to="item.route">{{ item.title }}<v-icon  @click.stop="removeAba(item)">mdi-close</v-icon></v-tab>
+      </v-tabs>
       <router-view/>
     </v-main>
-    </v-container>
   </v-app>
 </template>
 
@@ -23,21 +24,41 @@ export default {
   computed: mapState(['user']),
   data: () => ({
     drawer: false,
-    sistemaAbas: {}
+    tabs: 0,
+    items: [{
+      title: 'DashBoard',
+      route: '/dashboard',
+      cdMenu: 0
+    }],
   }),
-  //watch: {
-   // rota(title, route){
-     // console.log(title, route)
-    //}
- // },
   methods: {
-    set(rotas) {
-      this.sistemaAbas = { ...rotas }
-      //console.log(this.sistemaAbas)
-    }
+    sistemaAbas(item) {
+      const index = this.items.indexOf(this.items.find(el => el.cdMenu === item.cdMenu))
+      if(index === -1) {
+      this.items.push(item)
+      this.$router.push(item.route)
+      } else this.$router.push(this.items[index].route)
+    },
+    removeAba(item) {
+      let index = this.items.indexOf(item)
+      this.items.splice(index, 1)
+      if(this.items.length === 0){ 
+        this.resetTab()
+      }else { setTimeout(() => { this.$router.push(this.items[0].route) }, 100)}
+    },
+    resetTab() {
+			this.items = [{
+				title: 'DashBoard',
+				route: '/dashboard',
+        cdMenu: 0
+			}]
+      setTimeout(() => { this.$router.push(this.items[0].route) }, 100)
+		},
   },
   mounted() {
-   if (!this.user) this.$router.replace('login')
+    if (!this.user) {
+      this.$router.replace('/login')
+    } else this.resetTab()
   }
-};
+}; 
 </script>
